@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>A1</title>
+  <script src="d3.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="styles.css">
+</head>
+
+<body>
+  <script>
+    // Create the SVG canvas
+    var canvas = d3.select("body").append("svg");
+
+    // Add the group and translate it
+    let diagram = canvas.append("g").attr("transform", "translate(60,0)")
+
+    // Load data from CSV file
+    d3.csv("NBA_teams_3pp_2020.csv")
+      // Convert  "percentage" into numbers
+      .then(data => {data.forEach(d => d.percentage = +d["percentage"]);
+
+      // Sort data by "percentage" in descending order
+      data.sort((a, b) => b.percentage - a.percentage);
+  
+      // Find the maximum percentage value for scaleY
+      let maxPercentage = d3.max(data, function(d) {
+        return d.percentage;
+      })
+
+      // Create scaleX
+      let scaleX = d3.scaleBand() 
+        .domain(data.map(d => d.team)) //尺的刻度
+        .range([0, 1800]) //尺的长度
+        .padding(0.1);
+
+      // Create scaleY  
+      let scaleY = d3.scaleLinear()
+        .domain([0, maxPercentage])
+        .range([500, 0]); //+50  
+      
+      // Create bar chart rectangles
+      diagram.selectAll("p")
+        .data(data)
+        .enter()
+        .append("rect")
+        .attr("class", "rect-bar") 
+        .attr("x", d => scaleX(d.team))
+        .attr("y", d => scaleY(d.percentage)+50) //+50
+        .attr("width", scaleX.bandwidth()) 
+        .attr("height", d => 500 - scaleY(d.percentage));
+    
+      // Create axisX  
+      let axisX = d3.axisBottom();
+      axisX.scale(scaleX);
+
+      diagram.append("g")
+        .attr("class", "axis-tick")
+        .call(axisX)
+        .attr("transform", "translate(0,550)"); //+50
+
+      // Create axisY
+      let axisY = d3.axisLeft();
+      axisY.scale(scaleY);
+
+      diagram.append("g")
+        .attr("class", "axis-tick")
+        .call(axisY)
+        .attr("transform", "translate(0, 50)"); 
+      
+      // Add title  
+      diagram.append("text")
+        .attr("class", "chart-title")
+        .attr("x", 750)
+        .attr("y", 25)
+        .text("3P% of NBA teams in 2020 season"); 
+
+      // Add label to axisX  
+      diagram.append("text")
+        .attr("class", "axis-label")
+        .attr("x", 750)
+        .attr("y", 590)
+        .text("Teams"); 
+
+      // Add label to axisY  
+      diagram.append("text")
+        .attr("class", "axis-label")
+        .attr("x", -55)
+        .attr("y", 250)
+        .text("3P%"); 
+
+      console.log(data);
+      })
+
+    .catch(error => console.log(error));
+  
+    console.log(d3.version);
+  </script>  
+  </body>
+  </html>

@@ -1,0 +1,22 @@
+svg {
+    width: 1900px;
+    height: 600px;
+  }
+
+  .rect-bar {
+    fill: grey;
+  } 
+
+  .axis-label {
+    font-size: 14px;
+    font-weight: bold;
+  }
+  
+  .chart-title {
+    font-size: 18px;
+    font-weight: bold;
+  }
+  
+  .axis-tick {
+    font-size: 10px;
+  }
