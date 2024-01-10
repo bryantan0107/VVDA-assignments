@@ -1,0 +1,38 @@
+svg {
+    width: 1600px;
+    height: 1200px;
+  }
+
+  .steelblue-line {
+    stroke: steelblue;
+    fill: none;
+  }
+
+  .state-label {
+    font-size: 12px;
+    fill: black;
+  }
+
+  .axis-label {
+    font-size: 14px;
+    font-weight: bold;
+  }
+  
+  .chart-title {
+    font-size: 18px;
+    font-weight: bold;
+  }
+  
+  .axis-tick {
+    font-size: 10px;
+  }
+
+  .lineblue {
+    stroke: steelblue;
+    stroke-width: 1;
+  }
+  
+  .linered {
+    stroke: red;
+    stroke-width: 2;
+  }

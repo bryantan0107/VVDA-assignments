@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>A2</title>
+  <script src="d3.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="styles.css">
+</head>
+
+<body>
+  <script>
+    var clicked = false;
+    // Create the SVG canvas
+    var diagram = d3.select("body").append("svg").append("g").attr("transform", "translate(60,0)");
+
+    // Load data from CSV file
+    d3.csv("usa_burglary_rates_1984-2014.csv")
+    .then(data => {
+        lineData = []
+        data.forEach(d => {
+            data.columns.forEach(col => {
+                if(col!= "State"){
+                    var entry = {"State": d.State, "year": col, "value": +d[col]}
+                    lineData.push(entry);
+                }
+            })
+        })
+        var groupData = d3.group(lineData, d => d.State);
+
+        /* SCALES */
+        //Best practive would be to calculate these values, and not hardcode them
+        let maxValue = d3.max(lineData, function(d) {
+            return d.value;
+        })
+
+        let minValue = d3.min(lineData, function(d) {
+            return d.value;
+        })
+
+        // Create scaleX
+        let scaleX = d3.scaleLinear()
+          .domain([1984, 2014])
+          .range([100, 1200]);
+
+        // Create axisY  
+        let scaleY = d3.scaleLinear()
+          .domain([maxValue, minValue])
+          .range([0, 400]);
+
+        let line = d3.line()
+          .x(function(d) {
+            return scaleX(d.year);
+          })
+          .y(function(d) {
+            return scaleY(d.value)+100;
+          });
+        
+        /* PLOT DATA */
+        //be careful with the oder of the first few lines
+        diagram.selectAll("lines")
+          .append("g")
+          .data(groupData)
+          .enter()
+          .append("path")
+          .attr("class", "steelblue-line")
+          .attr("d", d => line(d[1]))
+          .attr("fill", "none")
+          .on("mouseover", lineOver)
+          .on("mouseout", lineOut)
+          .on("click", lineClick);
+
+        /* AXIS */
+        // Create axisX
+        let axisX = d3.axisBottom()
+            .scale(scaleX)
+            .tickFormat(d3.format("d"));
+
+        diagram.append("g").call(axisX)
+            .attr("transform", "translate(0,500)")     
+
+        // Create axisY
+        let axisY = d3.axisLeft()
+            .scale(scaleY);
+
+        diagram.append("g").call(axisY)
+          .attr("transform", "translate(100,100)")
+
+        // Create title    
+        diagram.append("text")
+            .attr("class", "chart-title")
+            .attr("x", 480)
+            .attr("y", 50)
+            .text("Burglary Rates per State in the USA (1984-2014)");    
+
+        // Add label to axisX  
+        diagram.append("text")
+            .attr("class", "axis-label")
+            .attr("x", 600)
+            .attr("y", 550)
+            .text("Years"); 
+
+        // Add label to axisY  
+        diagram.append("text")
+        .attr("class", "axis-label")
+        .attr("x", -40)
+        .attr("y", 250)
+        .text("Burglary Rate")
+        .append("tspan") 
+        .attr("x", -55)
+        .attr("dy", 16)
+        .text("(per 100.000 people)"); 
+
+        /* INTERACTION */
+        function lineOver(event, d) {
+          d3.select(this)
+            .classed("lineblue", false) 
+            .classed("linered", true); 
+
+          // Show the state name above the line
+          diagram.append("text")
+            .attr("class", "state-label")
+            .attr("x", 1210)
+            .attr("y", scaleY(d[1][d[1].length - 1].value)+100)
+            .text(d[0]);
+        }
+
+        function lineOut() {
+          d3.select(this)
+            .classed("lineblue", true) 
+            .classed("linered", false); 
+
+          // Remove the state name label
+          diagram.select(".state-label").remove();
+        }
+
+        function lineClick(event, d) {
+          d3.select(this)
+            .classed("lineblue", false) 
+            .classed("linered", true); 
+
+          // Show the state name above the line
+          diagram.append("text")
+            .attr("class", "state-label")
+            .attr("x", 1210)
+            .attr("y", scaleY(d[1][d[1].length - 1].value)+100)
+            .text(d[0]);
+
+          d3.select(this).on("mouseout", null);  
+        }
+
+        console.log(groupData);  
+
+    }).catch(error => console.log(error));
+  
+  </script>  
+  </body>
+  </html>
